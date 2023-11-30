@@ -106,11 +106,10 @@ static ngx_int_t ngx_mrb_post_fiber(ngx_mrb_reentrant_t *re, ngx_http_mruby_ctx_
     if (mrb_test(ngx_mrb_run_fiber(re->mrb, re->fiber, ctx->async_handler_result))) {
       // can resume the fiber and wait the epoll timer
       mrb_gc_arena_restore(re->mrb, ai);
-      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "ngx_mrb_post_fiber mrb_test true:  %zu", sizeof(re->fiber));
       return NGX_DONE;
     } else {
       // can not resume the fiber, the fiber was finished
-      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "ngx_mrb_post_fiber mrb_test false: %zu", sizeof(re->fiber));
+      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber : %d", *re->fiber);
       mrb_gc_unregister(re->mrb, *re->fiber);
       re->fiber = NULL;
     }
@@ -207,7 +206,7 @@ static mrb_value ngx_mrb_async_sleep(mrb_state *mrb, mrb_value self)
   ctx = ngx_mrb_http_get_module_ctx(mrb, r);
   re->fiber = ctx->fiber_proc;
 
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "before mrb_gc_register sizeof_mrb_value: %d", *re->fiber);
+  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_register   re->fiber : %d", *re->fiber);
   // keeps the object from GC when can resume the fiber
   // Don't forget to remove the object using
   // mrb_gc_unregister, otherwise your object will leak
