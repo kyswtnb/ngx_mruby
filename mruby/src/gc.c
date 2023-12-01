@@ -419,6 +419,7 @@ MRB_API void
 mrb_gc_register(mrb_state *mrb, mrb_value obj)
 {
   mrb_value table;
+  struct RArray *a;
 
   if (mrb_immediate_p(obj)) return;
   table = mrb_gv_get(mrb, GC_ROOT_SYM);
