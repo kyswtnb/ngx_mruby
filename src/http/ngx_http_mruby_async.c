@@ -53,13 +53,13 @@ mrb_value ngx_mrb_start_fiber(ngx_http_request_t *r, mrb_state *mrb, struct RPro
     ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
                   "%s NOTICE %s:%d: preparing fiber got the raise, leave the fiber", MODULE_NAME, __func__, __LINE__);
     return mrb_false_value();
+  } else {
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_register   fiber_proc : %d", *fiber_proc);
+    // keeps the object from GC when can resume the fiber
+    // Don't forget to remove the object using
+    // mrb_gc_unregister, otherwise your object will leak
+    mrb_gc_register(mrb, *fiber_proc);
   }
-
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_register   fiber_proc : %d", *fiber_proc);
-  // keeps the object from GC when can resume the fiber
-  // Don't forget to remove the object using
-  // mrb_gc_unregister, otherwise your object will leak
-  mrb_gc_register(mrb, *fiber_proc);
 
   return ngx_mrb_run_fiber(mrb, fiber_proc, result);
 }
