@@ -18,7 +18,7 @@
 #define ARY_SHRINK_RATIO  5 /* must be larger than 2 */
 #define ARY_C_MAX_SIZE (SIZE_MAX / sizeof(mrb_value))
 #ifndef MRB_ARY_LENGTH_MAX
-#define MRB_ARY_LENGTH_MAX 131072
+#define MRB_ARY_LENGTH_MAX 64
 #endif
 #define ARY_MAX_SIZE ((mrb_int)((ARY_C_MAX_SIZE < (size_t)MRB_INT_MAX) ? ARY_C_MAX_SIZE : MRB_INT_MAX-1))
 
