@@ -211,7 +211,7 @@ static mrb_value ngx_mrb_async_sleep(mrb_state *mrb, mrb_value self)
   // Don't forget to remove the object using
   // mrb_gc_unregister, otherwise your object will leak
 
-  if (!mrb_obj_eq(mrb, ctx->fiber_proc, re->fiber)) {
+  if (!mrb_obj_eq(mrb, *ctx->fiber_proc, *re->fiber)) {
     re->fiber = ctx->fiber_proc;
     mrb_gc_register(mrb, *re->fiber);
   }
