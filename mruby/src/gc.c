@@ -4,6 +4,7 @@
 ** See Copyright Notice in mruby.h
 */
 
+#include <stdio.h>
 #include <string.h>
 #ifdef MRB_USE_MALLOC_TRIM
 #include <malloc.h>
@@ -426,6 +427,7 @@ mrb_gc_register(mrb_state *mrb, mrb_value obj)
     mrb_gv_set(mrb, GC_ROOT_SYM, table);
   }
   mrb_ary_push(mrb, table, obj);
+  printf("mrb_gc_register Array length: %d\n", ARY_LEN(mrb));
 }
 
 /* mrb_gc_unregister() removes the object from GC root. */
