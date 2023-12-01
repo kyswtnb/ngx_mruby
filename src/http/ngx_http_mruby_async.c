@@ -55,6 +55,8 @@ mrb_value ngx_mrb_start_fiber(ngx_http_request_t *r, mrb_state *mrb, struct RPro
     return mrb_false_value();
   }
 
+  mrb_gc_register(mrb, *fiber_proc);
+
   return ngx_mrb_run_fiber(mrb, fiber_proc, result);
 }
 
@@ -204,17 +206,17 @@ static mrb_value ngx_mrb_async_sleep(mrb_state *mrb, mrb_value self)
   re->sr = NULL;
 
   ctx = ngx_mrb_http_get_module_ctx(mrb, r);
-  //re->fiber = ctx->fiber_proc;
+  re->fiber = ctx->fiber_proc;
 
   ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_register   re->fiber : %d", *re->fiber);
   // keeps the object from GC when can resume the fiber
   // Don't forget to remove the object using
   // mrb_gc_unregister, otherwise your object will leak
-
-  if (!mrb_obj_eq(mrb, *ctx->fiber_proc, *re->fiber)) {
-    re->fiber = ctx->fiber_proc;
-    mrb_gc_register(mrb, *re->fiber);
-  }
+  //mrb_gc_register(mrb, *re->fiber);
+  //if (!mrb_obj_eq(mrb, *ctx->fiber_proc, *re->fiber)) {
+    //re->fiber = ctx->fiber_proc;
+    //mrb_gc_register(mrb, *re->fiber);
+  //}
 
   ev = (ngx_event_t *)p;
   ngx_memzero(ev, sizeof(ngx_event_t));
