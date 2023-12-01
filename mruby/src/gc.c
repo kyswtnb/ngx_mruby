@@ -451,7 +451,7 @@ mrb_gc_unregister(mrb_state *mrb, mrb_value obj)
 
       ARY_SET_LEN(a, len);
       memmove(&ptr[i], &ptr[i + 1], (len - i) * sizeof(mrb_value));
-      //break;
+      break;
     }
   }
 }
