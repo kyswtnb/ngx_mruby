@@ -419,7 +419,6 @@ MRB_API void
 mrb_gc_register(mrb_state *mrb, mrb_value obj)
 {
   mrb_value table;
-  struct RArray *a;
 
   if (mrb_immediate_p(obj)) return;
   table = mrb_gv_get(mrb, GC_ROOT_SYM);
@@ -428,9 +427,7 @@ mrb_gc_register(mrb_state *mrb, mrb_value obj)
     mrb_gv_set(mrb, GC_ROOT_SYM, table);
   }
   mrb_ary_push(mrb, table, obj);
-  a = mrb_ary_ptr(table);
-  mrb_ary_modify(mrb, a);
-  printf("mrb_gc_register Array length: %d\n", ARY_LEN(mrb));
+  printf("mrb_gc_register Array length: %d\n", mrb_ary_len(mrb, table));
 }
 
 /* mrb_gc_unregister() removes the object from GC root. */
