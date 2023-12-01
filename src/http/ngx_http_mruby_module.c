@@ -891,10 +891,6 @@ ngx_int_t ngx_mrb_run(ngx_http_request_t *r, ngx_mrb_state_t *state, ngx_mrb_cod
     }
   }
   mrb_gc_arena_restore(state->mrb, ai);
-
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister code->proc : %d", *re->fiber);
-  mrb_gc_unregister(state->mrb, code->proc);
-
   if (!cached && !code->cache) {
     ngx_mrb_code_clean(r, state, code);
   }
