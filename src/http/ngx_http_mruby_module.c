@@ -855,6 +855,7 @@ ngx_int_t ngx_mrb_run(ngx_http_request_t *r, ngx_mrb_state_t *state, ngx_mrb_cod
   } else {
     ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "%s INFO %s:%d: already finish this fiber, can not resume",
                   MODULE_NAME, __func__, __LINE__);
+    mrb_gc_unregister(state->mrb, *code->proc);
   }
 
   if (state->mrb->exc) {
