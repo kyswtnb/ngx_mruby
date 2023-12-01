@@ -144,6 +144,7 @@ static ngx_int_t ngx_mrb_post_fiber(ngx_mrb_reentrant_t *re, ngx_http_mruby_ctx_
   }
 
   mrb_gc_arena_restore(re->mrb, ai);
+  mrb_gc_unregister(re->mrb, *re->fiber);
 
   if (rc != NGX_OK) {
     re->r->headers_out.status = NGX_HTTP_INTERNAL_SERVER_ERROR;
