@@ -427,6 +427,8 @@ mrb_gc_register(mrb_state *mrb, mrb_value obj)
     mrb_gv_set(mrb, GC_ROOT_SYM, table);
   }
   mrb_ary_push(mrb, table, obj);
+  a = mrb_ary_ptr(table);
+  mrb_ary_modify(mrb, a);
   printf("mrb_gc_register Array length: %d\n", ARY_LEN(mrb));
 }
 
