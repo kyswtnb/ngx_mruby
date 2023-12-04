@@ -53,7 +53,6 @@ mrb_value ngx_mrb_start_fiber(ngx_http_request_t *r, mrb_state *mrb, struct RPro
     ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
                   "%s NOTICE %s:%d: preparing fiber got the raise, leave the fiber", MODULE_NAME, __func__, __LINE__);
     return mrb_false_value();
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 19 : %d", *fiber_proc);
   } else {
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_register   fiber_proc : %d", *fiber_proc);
     // keeps the object from GC when can resume the fiber
@@ -62,7 +61,6 @@ mrb_value ngx_mrb_start_fiber(ngx_http_request_t *r, mrb_state *mrb, struct RPro
     mrb_gc_register(mrb, *fiber_proc);
   }
 
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 21 : %d", *fiber_proc);
   return ngx_mrb_run_fiber(mrb, fiber_proc, result);
 }
 
@@ -81,12 +79,10 @@ mrb_value ngx_mrb_run_fiber(mrb_state *mrb, mrb_value *fiber_proc, mrb_value *re
   if (mrb->exc) {
     ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "%s NOTICE %s:%d: fiber got the raise, leave the fiber",
                   MODULE_NAME, __func__, __LINE__);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 16 : %d", *fiber_proc);
     return mrb_false_value();
   }
 
   if (!mrb_array_p(resume_result)) {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 17 : %d", *fiber_proc);
     mrb->exc = mrb_obj_ptr(mrb_exc_new_lit(
         mrb, E_RUNTIME_ERROR,
         "_ngx_mrb_prepare_fiber proc must return array included handler_return and fiber alive status"));
@@ -96,15 +92,11 @@ mrb_value ngx_mrb_run_fiber(mrb_state *mrb, mrb_value *fiber_proc, mrb_value *re
   handler_result = mrb_ary_entry(resume_result, 1);
 
   if (!mrb_test(aliving) && result != NULL) {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 18 : %d", *fiber_proc);
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber : %d", *fiber_proc);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "aliving 1 : %d", aliving);
     mrb_gc_unregister(mrb, *fiber_proc);
     *result = handler_result;
   }
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "aliving 0 : %d", aliving);
 
-  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 20 : %d", *fiber_proc);
   return aliving;
 }
 
@@ -122,7 +114,6 @@ static ngx_int_t ngx_mrb_post_fiber(ngx_mrb_reentrant_t *re, ngx_http_mruby_ctx_
     if (mrb_test(ngx_mrb_run_fiber(re->mrb, re->fiber, ctx->async_handler_result))) {
       // can resume the fiber and wait the epoll timer
       mrb_gc_arena_restore(re->mrb, ai);
-      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 10 : %d", *re->fiber);
       return NGX_DONE;
     } else {
       // can not resume the fiber, the fiber was finished
@@ -132,18 +123,15 @@ static ngx_int_t ngx_mrb_post_fiber(ngx_mrb_reentrant_t *re, ngx_http_mruby_ctx_
     }
 
     if (re->mrb->exc) {
-      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 11 : %d", *re->fiber);
       ngx_mrb_raise_error(re->mrb, mrb_obj_value(re->mrb->exc), re->r);
       rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
     } else if (re->sr == NULL && ctx->set_var_target.len > 1) {
-      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 12 : %d", *re->fiber);
       if (ctx->set_var_target.data[0] != '$') {
         ngx_log_error(NGX_LOG_NOTICE, re->r->connection->log, 0,
                       "%s NOTICE %s:%d: invalid variable name error name: %s", MODULE_NAME, __func__, __LINE__,
                       ctx->set_var_target.data);
         rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
       } else {
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 13 : %d", *re->fiber);
         // Delete the leading dollar(ctx->set_var_target.data+1)
         ngx_mrb_var_set_vector(re->mrb, mrb_top_self(re->mrb), (char *)ctx->set_var_target.data + 1,
                                ctx->set_var_target.len - 1, *ctx->async_handler_result, re->r);
@@ -160,12 +148,10 @@ static ngx_int_t ngx_mrb_post_fiber(ngx_mrb_reentrant_t *re, ngx_http_mruby_ctx_
   mrb_gc_arena_restore(re->mrb, ai);
 
   if (rc != NGX_OK) {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 14 : %d", *re->fiber);
     re->r->headers_out.status = NGX_HTTP_INTERNAL_SERVER_ERROR;
   }
 
   if (rc == NGX_DECLINED) {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, re->r->connection->log, 0, "mrb_gc_unregister re->fiber 15 : %d", *re->fiber);
     re->r->phase_handler++;
     ngx_http_core_run_phases(re->r);
   }
