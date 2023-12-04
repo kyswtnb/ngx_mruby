@@ -95,7 +95,7 @@ mrb_value ngx_mrb_run_fiber(mrb_state *mrb, mrb_value *fiber_proc, mrb_value *re
   handler_result = mrb_ary_entry(resume_result, 1);
 
   if (!mrb_test(aliving) && result != NULL) {
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 18 : %d", *re->fiber);
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 18 : %d", *fiber_proc);
     *result = handler_result;
   }
 
