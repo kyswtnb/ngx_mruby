@@ -62,6 +62,7 @@ mrb_value ngx_mrb_start_fiber(ngx_http_request_t *r, mrb_state *mrb, struct RPro
     mrb_gc_register(mrb, *fiber_proc);
   }
 
+  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 21 : %d", *fiber_proc);
   return ngx_mrb_run_fiber(mrb, fiber_proc, result);
 }
 
@@ -99,6 +100,7 @@ mrb_value ngx_mrb_run_fiber(mrb_state *mrb, mrb_value *fiber_proc, mrb_value *re
     *result = handler_result;
   }
 
+  ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "mrb_gc_unregister re->fiber 20 : %d", *fiber_proc);
   return aliving;
 }
 
